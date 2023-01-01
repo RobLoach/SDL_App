@@ -44,8 +44,6 @@ struct SDL_App {
     /**
      * The initiatialization callback for the application.
      *
-     * InitWindow() will be called prior to init() being called.
-     *
      * @param app The SDL_App information for the currently running application.
      */
     void (*init)(SDL_App* app);
@@ -59,8 +57,6 @@ struct SDL_App {
 
     /**
      * The close callback used to deinitialize all application data.
-     *
-     * CloseWindow() is called after the callback is run.
      *
      * @param app The SDL_App information for the currently running application.
      */
@@ -112,7 +108,7 @@ void SDL_AppClose(SDL_App* app);
 #include SDL_APP_SDL_H
 
 // emscripten.h
-#if defined(EM_JS)
+#if defined(EMSCRIPTEN)
 #ifndef SDL_APP_EMSCRIPTEN_H
 #define SDL_APP_EMSCRIPTEN_H "emscripten.h"
 #endif
@@ -150,7 +146,7 @@ void SDL_AppClose(SDL_App* app) {
     app->shouldClose = SDL_TRUE;
 }
 
-#if defined(EM_JS)
+#if defined(EMSCRIPTEN)
 /**
  * The update callback for web.
  */
@@ -193,8 +189,8 @@ int main(int argc, char* argv[]) {
 
     // Start the update loop
     if (app.update != NULL) {
-#if defined(EM_JS)
-        emscripten_set_main_loop_arg(SDL_App_Update, &app, 0, 0);
+#if defined(EMSCRIPTEN)
+        emscripten_set_main_loop_arg(SDL_App_Update, &app, -1, 1);
 #else
         // Stop running if the Window or SDL_App have been told to close.
         while (app.shouldClose != SDL_TRUE) {
