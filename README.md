@@ -63,11 +63,11 @@ SDL_App Main(int argc, char* argv[]) {
 
 ## API
 
-Rather than having your own `int main()`, define your own `App Main(int argc char* argv[])` function.
+Rather than having your own `int main()`, define your own `SDL_App Main(int argc char* argv[])` function.
 
 ``` c
-App Main(int argc, char* argv[]) {
-    return (App) {
+SDL_App Main(int argc, char* argv[]) {
+    return (SDL_App) {
         .init = Init,               // The init callback that is called when the application initializes
         .update = Update,           // The update callback that is called when the application should render
         .close = Close,             // The close callback which is called when the application is closed

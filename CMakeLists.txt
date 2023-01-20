@@ -23,12 +23,12 @@ if (SDL_APP_BUILD_EXAMPLES)
     add_subdirectory(examples)
 
     # Testing
-    #include(CTest)
-    #enable_testing()
-    #if (BUILD_TESTING)
-        # set(CTEST_CUSTOM_TESTS_IGNORE
-        #     pkg-config--static
-        # )
-    #    add_subdirectory(test)
-    #endif()
+    include(CTest)
+    enable_testing()
+    if (BUILD_TESTING)
+        set(CTEST_CUSTOM_TESTS_IGNORE
+            pkg-config--static
+        )
+       add_subdirectory(test)
+    endif()
 endif()
