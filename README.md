@@ -19,19 +19,20 @@ typedef struct AppData {
     SDL_Renderer* renderer;
 } AppData;
 
-SDL_bool Init(void* app) {
-    AppData* appData = (AppData*)userData;
+SDL_bool Init(void* userData) {
 	SDL_Init(SDL_INIT_EVERYTHING);
+
+    AppData* appData = (AppData*)userData;
 	appData->window = SDL_CreateWindow("SDL_App: Example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 450, SDL_WINDOW_SHOWN);
-	appData->renderer = SDL_CreateRenderer(appData->window, -1, SDL_RENDERER_PRESENTVSYNC);
+	appData>renderer = SDL_CreateRenderer(appData->window, -1, SDL_RENDERER_PRESENTVSYNC);
 
     return SDL_TRUE;
 }
 
 SDL_bool Update(void* userData) {
     AppData* appData = (AppData*)userData;
-    SDL_Event event;
 
+    SDL_Event event;
     while (SDL_PollEvent(&event) != 0) {
         switch (event.type) {
             case SDL_QUIT:
@@ -75,7 +76,7 @@ SDL_App Main(int argc, char* argv[]) {
         .init = Init,               // The init callback that is called when the application initializes
         .update = Update,           // The update callback that is called when the application should render
         .close = Close,             // The close callback which is called when the application is closed
-        .userData = NULL            // Custom user data that is passed through all the callbacks
+        .userData = NULL            // Custom user data that is passed through all the callbacks (Optional)
     };
 }
 ```
