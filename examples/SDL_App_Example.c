@@ -9,8 +9,11 @@ typedef struct AppData {
 } AppData;
 
 SDL_bool Init(void* userData) {
+	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
+        return SDL_FALSE;
+    }
+
     AppData* appData = (AppData*)userData;
-	SDL_Init(SDL_INIT_EVERYTHING);
 	appData->window = SDL_CreateWindow("SDL_App: Example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 450, SDL_WINDOW_SHOWN);
     if (appData->window == NULL) {
         return SDL_FALSE;

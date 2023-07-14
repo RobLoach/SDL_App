@@ -169,8 +169,8 @@ int main(int argc, char* argv[]) {
     if (app.init != NULL) {
         // Check if initialization worked.
         if (app.init(app.userData) == SDL_FALSE) {
-            // Skip the update loop if it didn't.
-            app.update = NULL;
+            // Skip calling the other callbacks if it failed.
+            app.update = app.close = NULL;
         }
     }
 

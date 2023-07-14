@@ -20,11 +20,11 @@ typedef struct AppData {
 } AppData;
 
 SDL_bool Init(void* userData) {
-	SDL_Init(SDL_INIT_EVERYTHING);
+    SDL_Init(SDL_INIT_EVERYTHING);
 
     AppData* appData = (AppData*)userData;
-	appData->window = SDL_CreateWindow("SDL_App: Example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 450, SDL_WINDOW_SHOWN);
-	appData>renderer = SDL_CreateRenderer(appData->window, -1, SDL_RENDERER_PRESENTVSYNC);
+    appData->window = SDL_CreateWindow("SDL_App: Example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 450, SDL_WINDOW_SHOWN);
+    appData>renderer = SDL_CreateRenderer(appData->window, -1, SDL_RENDERER_PRESENTVSYNC);
 
     return SDL_TRUE;
 }
@@ -49,9 +49,9 @@ SDL_bool Update(void* userData) {
 
 void Close(void* userData) {
     AppData* appData = (AppData*)userData;
-	SDL_DestroyRenderer(appData->renderer);
-	SDL_DestroyWindow(appData->window);
-	SDL_Quit();
+    SDL_DestroyRenderer(appData->renderer);
+    SDL_DestroyWindow(appData->window);
+    SDL_Quit();
 }
 
 SDL_App Main(int argc, char* argv[]) {

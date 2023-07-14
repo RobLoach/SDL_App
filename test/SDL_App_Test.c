@@ -13,6 +13,7 @@ SDL_bool Init(void* userData) {
     AppData* appData = (AppData*)userData;
 	appData->initCalled = SDL_TRUE;
     appData->updateCallCount = 0;
+
     SDL_Log("Init() called");
 
     return SDL_TRUE;
@@ -27,6 +28,7 @@ SDL_bool Update(void* userData) {
     }
 
     SDL_Log("Update() call #%d", appData->updateCallCount);
+
     return SDL_TRUE;
 }
 
