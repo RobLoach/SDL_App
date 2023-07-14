@@ -1,6 +1,6 @@
 /**********************************************************************************************
 *
-*   SDL_App v0.0.1 - Application wrapper for SDL.
+*   SDL_App v1.0.0 - Application wrapper for SDL.
 *
 *       https://github.com/RobLoach/SDL_App
 *
@@ -35,61 +35,44 @@
 extern "C" {
 #endif
 
-typedef struct SDL_App SDL_App;
-
 /**
  * Application data that is used to manage the window.
  */
-struct SDL_App {
+typedef struct SDL_App {
     /**
      * The initiatialization callback for the application.
      *
-     * @param app The SDL_App information for the currently running application.
+     * @param userData The SDL_App user data that was passed during initialization.
+     *
+     * @return SDL_TRUE if the application was initialized successfully, SDL_FALSE otherwise.
      */
-    void (*init)(SDL_App* app);
+    SDL_bool (*init)(void* userData);
 
     /**
      * The update callback to update and draw the application.
      *
-     * @param app The SDL_App information for the currently running application.
+     * @param userData The SDL_App user data that was passed during initialization.
+     *
+     * @return SDL_TRUE to continue running the application, SDL_FALSE to close.
      */
-    void (*update)(SDL_App* app);
+    SDL_bool (*update)(void* userData);
 
     /**
      * The close callback used to deinitialize all application data.
      *
-     * @param app The SDL_App information for the currently running application.
+     * @param userData The SDL_App user data that was passed during initialization.
      */
-    void (*close)(SDL_App* app);
-
-    /**
-     * When set to TRUE, will stop running the update() callback and close the application.
-     *
-     * @see CloseApp()
-     */
-    SDL_bool shouldClose;
-
-    /**
-     * The exit status to return after the application has been run.
-     *
-     * Set this to 1 if you'd like to report an error when exiting.
-     */
-    int exitStatus;
+    void (*close)(void* userData);
 
     /**
      * Custom user data that is passed through the application callbacks.
      *
      * This is helpful if you have context that needs to be passed through all the callbacks.
+     *
+     * The memory allocated as part of this will be freed for you.
      */
     void* userData;
-};
-
-/**
- * Tells the application that it should close.
- *
- * @param app The application that should be closed.
- */
-void SDL_AppClose(SDL_App* app);
+} SDL_App;
 
 #if defined(__cplusplus)
 }
@@ -101,11 +84,24 @@ void SDL_AppClose(SDL_App* app);
 #ifndef SDL_APP_IMPLEMENTATION_ONCE
 #define SDL_APP_IMPLEMENTATION_ONCE
 
-// raylib.h
-#ifndef SDL_APP_SDL_H
-#define SDL_APP_SDL_H <SDL2/SDL.h>
-#endif
-#include SDL_APP_SDL_H
+#ifndef SDL_APP_MAIN
+/**
+ * The name of the entry point in your application.
+ *
+ * Will default to "Main".
+ *
+ * @code
+ * #define SDL_APP_MAIN MyOwnMain
+ * #define SDL_APP_IMPLEMENTATION
+ * #include "SDL_App.h"
+ *
+ * SDL_App MyOwnMain(int argc, char* argv[]) {
+ *   // Stuff
+ * }
+ * @endcode
+ **/
+#define SDL_APP_MAIN Main
+#endif  // SDL_APP_MAIN
 
 // emscripten.h
 #if defined(EMSCRIPTEN)
@@ -113,7 +109,7 @@ void SDL_AppClose(SDL_App* app);
 #define SDL_APP_EMSCRIPTEN_H "emscripten.h"
 #endif
 #include SDL_APP_EMSCRIPTEN_H
-#endif
+#endif  // EMSCRIPTEN
 
 #ifndef NULL
 #include <stddef.h>
@@ -127,24 +123,19 @@ extern "C" {
 /**
  * The main entry point defining the application behavior.
  *
- * @see SDL_App
+ * By default, this will be named "Main", but can be changed by defining SDL_APP_MAIN.
+ *
  * @param argc The length of the argument vector.
  * @param argv The array of arguments.
- * @example examples/core_basic_window.c
+ * @example examples/SDL_App_Example.c
  *
- * @return The SDL_App description for your Application.
+ * @return The SDL_App description for your application.
+ *
+ * @see SDL_App
+ * @see SDL_APP_MAIN
  */
-extern SDL_App Main(int argc, char* argv[]);
+extern SDL_App SDL_APP_MAIN(int argc, char* argv[]);
 #endif
-
-/**
- * Informs the application that it should close.
- *
- * @param app The application that should close.
- */
-void SDL_AppClose(SDL_App* app) {
-    app->shouldClose = SDL_TRUE;
-}
 
 #if defined(EMSCRIPTEN)
 /**
@@ -152,65 +143,60 @@ void SDL_AppClose(SDL_App* app) {
  */
 void SDL_App_Update(void* app) {
     SDL_App* application = (SDL_App*)app;
-    if (application == NULL) {
-        return;
-    }
 
-    if (application->shouldClose == SDL_TRUE) {
-        // Tell emscripten that it should stop doing the main loop.
+    // Ensure the application exists.
+    if (application == NULL ||
+        application->update == NULL ||
+        application->update(application->userData) == SDL_FALSE) {
         emscripten_cancel_main_loop();
-        return;
-    }
-
-    // Call the update function.
-    if (application->update != NULL) {
-        application->update(application);
     }
 }
 #endif
 
 #if !defined(SDL_APP_NO_ENTRY)
 /**
- * The main entry point for raylib-app.
+ * The main entry point of the application.
+ *
+ * Will call the Main() function.
+ *
+ * @see SDL_APP_MAIN
  */
 int main(int argc, char* argv[]) {
     // Get the user-defined SDL_App from their Main() function.
-    SDL_App app = Main(argc, argv);
-
-    // Allow exiting early if desired.
-    if (app.shouldClose) {
-        return app.exitStatus;
-    }
+    SDL_App app = SDL_APP_MAIN(argc, argv);
 
     // Call the init callback.
     if (app.init != NULL) {
-        app.init(&app);
+        // Check if initialization worked.
+        if (app.init(app.userData) == SDL_FALSE) {
+            // Skip the update loop if it didn't.
+            app.update = NULL;
+        }
     }
 
     // Start the update loop
     if (app.update != NULL) {
 #if defined(EMSCRIPTEN)
+        // Set up the main loop.
         emscripten_set_main_loop_arg(SDL_App_Update, &app, -1, 1);
 #else
-        // Stop running if the Window or SDL_App have been told to close.
-        while (app.shouldClose != SDL_TRUE) {
-            app.update(&app);
-        }
+        // Continue running when update returns TRUE.
+        while(app.update(app.userData) == SDL_TRUE);
 #endif
     }
 
     // Close the SDL_App and Window
     if (app.close != NULL) {
-        app.close(&app);
+        app.close(app.userData);
     }
 
-    // Clean up any other user data.
+    // Clear up any user data.
     if (app.userData != NULL) {
         SDL_free(app.userData);
-        app.userData = NULL;
     }
 
-    return app.exitStatus;
+    // Return an error state if update was nullified.
+    return (app.update == NULL) ? 1 : 0;
 }
 #endif // SDL_APP_NO_ENTRY
 

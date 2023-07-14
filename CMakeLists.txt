@@ -1,14 +1,14 @@
 cmake_minimum_required(VERSION 3.11)
-project(SDL_app
-    DESCRIPTION "SDL_app: Application wrapper for SDL."
-    HOMEPAGE_URL "https://github.com/robloach/SDL_app"
-    VERSION 0.0.1
+project(SDL_App
+    DESCRIPTION "SDL_App: Application wrapper for SDL."
+    HOMEPAGE_URL "https://github.com/RobLoach/SDL_App"
+    VERSION 1.0.0
     LANGUAGES C
 )
 
 # raylib-app
-add_library(SDL_app INTERFACE)
-target_include_directories(SDL_app INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+add_library(SDL_App INTERFACE)
+target_include_directories(SDL_App INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # Options
 if ("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")

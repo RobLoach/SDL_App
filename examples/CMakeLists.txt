@@ -25,8 +25,8 @@ list(APPEND examples_resources ${resources})
 file(COPY ${examples_resources} DESTINATION "resources/")
 
 # SDL_libretro_example
-add_executable(SDL_app_example SDL_app_example.c)
-target_link_libraries(SDL_app_example PRIVATE
+add_executable(SDL_App_Example SDL_App_Example.c)
+target_link_libraries(SDL_App_Example PRIVATE
     ${SDL2_LIBRARIES}
-    SDL_app
+    SDL_App
 )
