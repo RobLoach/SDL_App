@@ -2,6 +2,10 @@
 
 Application wrapper for [SDL](https://libsdl.org/) to accomodate desktop, mobile, and web.
 
+## Deprecated
+
+With SDL3, this is no longer required as you can use `SDL_MAIN_USE_CALLBACKS`. See https://github.com/Ravbug/sdl3-sample for a demonstration.
+
 ## Introduction
 
 When building SDL applications for desktop, mobile, and web, there are subtle differences to accomodate the application workflow. [*SDL_App.h*](include/SDL_App.h) aims to clean up those differences, and make the code easier to read for a unified application entry. This pattern is inspired by [sokol_app](https://github.com/floooh/sokol#sokol_apph).
